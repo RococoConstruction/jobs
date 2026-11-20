@@ -1,6 +1,6 @@
 // Job Board service worker: caches the app shell so it opens fast and works
 // with spotty signal. Job data always comes live from the Google Sheet.
-const CACHE = 'job-board-v1';
+const CACHE = 'job-board-v4';
 const SHELL = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
@@ -17,7 +17,7 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET' || url.origin !== location.origin) return; // never cache sheet data
   // Network first so updates show up right away; fall back to cache offline.
   e.respondWith(
-    fetch(e.request).then(res => {
+    fetch(e.request, { cache: 'no-cache' }).then(res => {
       const copy = res.clone();
       caches.open(CACHE).then(c => c.put(e.request, copy));
       return res;

@@ -109,6 +109,7 @@ textarea{min-height:70px;resize:vertical}
    Paste your Apps Script web app URL below. Leave it blank to
    run in demo mode with made-up jobs (nothing is saved).
    ============================================================ */
+const APP_VERSION = 'v4 · Nov 20';
 const API_URL = 'https://script.google.com/macros/s/AKfycbzo1kWBI3K1VRD5hgk2bwBbX5dQi6ePCoDoL_SFXkR0hybgr6yvemHunZRhUQcK6AYPAA/exec';
 
 /* Scope is stored one item per line. A finished item starts with "[x] ". */
@@ -344,7 +345,8 @@ function openSettings(){
       <input id="apiIn" value="${esc(cfg.apiUrl||'')}" placeholder="https://script.google.com/macros/s/…/exec">
       <div class="btns"><button class="btn" id="saveApi">Save connection</button></div>`}
     <div class="btns"><button class="btn sec" id="logout">Switch user</button><button class="btn sec" data-close>Close</button></div>
-    <div class="small" style="margin-top:14px">On iPhone: Share → Add to Home Screen to install it like an app.</div></div></div>`;
+    <div class="small" style="margin-top:14px">On iPhone: Share → Add to Home Screen to install it like an app.</div>
+    <div class="small" style="margin-top:6px">App version: ${esc(APP_VERSION)}</div></div></div>`;
   const bg = $('#modal .sheet-bg');
   bg.onclick = e => { if(e.target===bg || e.target.closest('[data-close]')) closeModal(); };
   if($('#saveApi')) $('#saveApi').onclick = () => { cfg.apiUrl = $('#apiIn').value.trim(); cfg.pin=''; saveCfg(); S.user=null; DEMO=null; closeModal(); renderLogin(); };
@@ -368,7 +370,7 @@ document.addEventListener('visibilitychange', () => { if(idle()) loadAll(true); 
 setInterval(() => { if(idle()) loadAll(true); }, 60000);
 if(cfg.name && (isDemo() || cfg.pin)) loadAll(); else renderLogin();
 if('serviceWorker' in navigator && location.protocol==='https:' && !/claude/.test(location.hostname)){
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js').then(r => r.update()).catch(() => {});
 }
 </script>
 </body>
