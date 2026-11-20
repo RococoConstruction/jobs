@@ -88,6 +88,7 @@ textarea{min-height:70px;resize:vertical}
 .check.ro{cursor:default}
 .bar{height:6px;background:#202024;border-radius:6px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:var(--gold)}
+.editbtn{background:var(--gold);color:#1b1b1d;border:0;border-radius:9px;padding:5px 10px;font-weight:700;font-size:13px;white-space:nowrap}
 .grp{display:flex;align-items:center;justify-content:space-between;margin:14px 2px 8px}
 .grp .chip{font-size:13px;font-weight:700;padding:4px 12px}
 .items{margin-top:10px;background:#212125;border-radius:10px;padding:2px 12px}
@@ -267,7 +268,8 @@ function card(j){
   return `<div class="card ${isDone(j)?'done':''}">
     <div class="row between" data-toggle="${esc(j.ID)}" style="cursor:pointer">
       <div><div class="title">${esc(j.Job)}</div><div class="sub">📍 ${esc(j.Location||'—')}${isDone(j)?'':` · <span style="color:${priOf(j)==='Urgent'?'#f2a19e':'inherit'}">${esc(priOf(j))}</span>`}</div></div>
-      <span class="chip ${isDone(j)?'g':p.done?'b':''}">${p.done}/${p.total} done</span></div>
+      <div class="row" style="gap:6px"><span class="chip ${isDone(j)?'g':p.done?'b':''}">${p.done}/${p.total} done</span>
+      ${isAdmin()?`<button class="editbtn" data-edit="${esc(j.ID)}" aria-label="Edit job">✎ Edit</button>`:''}</div></div>
     ${timeline(j)}
     <div class="bar"><i style="width:${pct}%"></i></div>
     ${open ? `<div class="items">${it.map((i,k) => `<div class="check ${i.d?'on':''} ${canTick()?'':'ro'}" data-tick="${esc(j.ID)}" data-k="${k}">
@@ -275,7 +277,7 @@ function card(j){
       ${j.Notes?`<div class="sub" style="margin-top:8px">📝 ${esc(j.Notes)}</div>`:''}
       <div class="row between" style="margin-top:8px">
         <span class="small">${j.UpdatedBy?`Updated by ${esc(j.UpdatedBy)} · ${esc(fmtStamp(j.UpdatedAt))}`:''}</span>
-        ${canTick()?`<button class="btn sm sec" data-edit="${esc(j.ID)}">${isAdmin()?'Edit':'Add note'}</button>`:''}
+        ${canTick()?`<button class="btn sm sec" data-edit="${esc(j.ID)}">${isAdmin()?'✎ Edit job':'Add note'}</button>`:''}
       </div>` : ''}
   </div>`;
 }
