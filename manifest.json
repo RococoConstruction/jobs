@@ -1,0 +1,13 @@
+{
+  "name": "Job Board",
+  "short_name": "Job Board",
+  "description": "Rococo Construction job board and schedule",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1b1b1d",
+  "theme_color": "#1b1b1d",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

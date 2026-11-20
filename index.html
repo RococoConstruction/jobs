@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1b1b1d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Job Board">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Job Board</title>
+<style>
+:root{--bg:#1b1b1d;--card:#26262a;--card2:#2f2f34;--line:#3a3a40;--text:#f2f0ea;--mute:#9a978f;--gold:#c9a227;--gold2:#e2c25a;
+--green:#3d9a5b;--red:#d9534f;--amber:#d99a2b;--blue:#4a8fd9}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;margin:0;color:var(--gold);letter-spacing:.5px;flex:1}
+header .who{font-size:12px;color:var(--mute);text-align:right}
+.iconbtn{background:none;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:6px 10px;font-size:14px}
+main{padding:12px 12px calc(84px + env(safe-area-inset-bottom))}
+nav{position:fixed;bottom:0;left:0;right:0;background:#151517;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;background:none;border:0;color:var(--mute);padding:10px 0 8px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button .ic{font-size:20px;line-height:1}
+nav button.on{color:var(--gold)}
+.banner{background:#3a3220;color:var(--gold2);border:1px solid #5a4b22;border-radius:10px;padding:8px 12px;font-size:13px;margin-bottom:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.card.flag{border-color:var(--red);box-shadow:inset 3px 0 0 var(--red)}
+.card.done{opacity:.5}
+.row{display:flex;align-items:center;gap:8px}
+.between{justify-content:space-between}
+.title{font-weight:600;font-size:16px}
+.sub{color:var(--mute);font-size:13px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:11.5px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--text);border:1px solid var(--line);white-space:nowrap}
+.chip.g{background:#1f3a27;border-color:#2e5a3b;color:#8fd6a5}
+.chip.r{background:#3d2120;border-color:#6a3330;color:#f2a19e}
+.chip.a{background:#3d311c;border-color:#6a5328;color:#f0c674}
+.chip.b{background:#1d2e40;border-color:#2d4a6a;color:#9cc4f0}
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap}
+.pill.red{background:var(--red);color:#fff}
+.pill.soon{background:var(--card2);color:var(--gold2)}
+.seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;background:none;border:0;color:var(--mute);padding:7px 0;border-radius:9px;font-size:13px}
+.seg button.on{background:var(--card2);color:var(--text)}
+.weekhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.weekhead .lbl{font-weight:600}
+.days{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:8px}
+.day{text-align:center;font-size:11px;color:var(--mute);padding:4px 0;border-radius:8px;background:#202024}
+.day.on{background:var(--gold);color:#1b1b1d;font-weight:700}
+.day.today{outline:1px solid var(--gold2)}
+.jobline{padding:10px 0;border-top:1px solid var(--line)}
+.jobline:first-of-type{border-top:0}
+.empty{color:var(--mute);font-size:13px;padding:6px 0}
+.btn{background:var(--gold);color:#1b1b1d;border:0;border-radius:12px;padding:12px 14px;font-weight:700;font-size:15px;width:100%}
+.btn.sec{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+.btn.sm{width:auto;padding:7px 12px;font-size:13px;border-radius:10px}
+.btn.danger{background:none;color:var(--red);border:1px solid #6a3330}
+.btns{display:flex;gap:8px;margin-top:10px}
+label{display:block;font-size:12px;color:var(--mute);margin:10px 0 4px}
+input,select,textarea{width:100%;background:#1f1f22;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:16px}
+input:disabled,select:disabled,textarea:disabled{opacity:.55}
+textarea{min-height:70px;resize:vertical}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:flex;align-items:flex-end}
+.sheet{background:var(--bg);width:100%;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;border-top:1px solid var(--line);padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet h2{margin:0 0 4px;font-size:18px;color:var(--gold)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));background:#333;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:30;max-width:90%}
+.toast.err{background:var(--red)}
+.login{max-width:420px;margin:40px auto 0;padding:0 8px}
+.login h2{color:var(--gold);margin:0 0 4px}
+.names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.names button{background:var(--card);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:14px 8px;font-size:15px}
+.names button.on{border-color:var(--gold);color:var(--gold)}
+.small{font-size:12px;color:var(--mute)}
+.upd{white-space:pre-wrap}
+.sumrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.sum{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+.sum b{display:block;font-size:20px;color:var(--gold)}
+.sum span{font-size:11px;color:var(--mute)}
+.sum.alert b{color:var(--red)}
+.check{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);cursor:pointer}
+.check:first-child{border-top:0}
+.box{flex:0 0 24px;height:24px;border-radius:7px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#1b1b1d}
+.check.on .box{background:var(--gold);border-color:var(--gold)}
+.check.on .txt{color:var(--mute);text-decoration:line-through}
+.check.ro{cursor:default}
+.bar{height:6px;background:#202024;border-radius:6px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:var(--gold)}
+.items{margin-top:10px;background:#212125;border-radius:10px;padding:2px 12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>Job Board</h1>
+  <div class="who" id="who"></div>
+  <button class="iconbtn" id="refreshBtn" aria-label="Refresh">⟳</button>
+  <button class="iconbtn" id="menuBtn" aria-label="Settings">☰</button>
+</header>
+<main id="app" style="padding-bottom:calc(24px + env(safe-area-inset-bottom))"></main>
+<div id="modal"></div>
+<script>
+/* ============================================================
+   Job Board: job list
+   Paste your Apps Script web app URL below. Leave it blank to
+   run in demo mode with made-up jobs (nothing is saved).
+   ============================================================ */
+const API_URL = 'https://script.google.com/macros/s/AKfycbzo1kWBI3K1VRD5hgk2bwBbX5dQi6ePCoDoL_SFXkR0hybgr6yvemHunZRhUQcK6AYPAA/exec';
+
+/* Scope is stored one item per line. A finished item starts with "[x] ". */
+const parseItems = scope => String(scope||'').split('\n').map(l => l.trim()).filter(Boolean)
+  .map(l => /^\[x\]\s*/i.test(l) ? {t:l.replace(/^\[x\]\s*/i,''), d:true} : {t:l.replace(/^\[ \]\s*/,''), d:false});
+const joinItems = items => items.map(i => (i.d ? '[x] ' : '') + i.t).join('\n');
+const progress = j => { const it = parseItems(j.Scope); const d = it.filter(i => i.d).length; return {done:d, total:it.length}; };
+const isDone = j => { const p = progress(j); return p.total>0 && p.done===p.total; };
+const pad = n => String(n).padStart(2,'0');
+const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parseD = s => { const p = String(s||'').slice(0,10).split('-').map(Number); return p.length===3 && p[0] ? new Date(p[0],p[1]-1,p[2]) : null; };
+const today = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const fmtD = d => d ? d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric'}) : '';
+/* Target finish = start + estimated work days (Mon–Fri), counting the start day. */
+function targetFinish(j){
+  let d = parseD(j.Start); const n = Math.round(Number(j.EstDays));
+  if(!d || !n || n<1) return null;
+  while(d.getDay()===0 || d.getDay()===6) d.setDate(d.getDate()+1);
+  let left = n-1;
+  while(left>0){ d.setDate(d.getDate()+1); if(d.getDay()!==0 && d.getDay()!==6) left--; }
+  return d;
+}
+function workdaysBetween(a, b){ let n = 0; const d = new Date(a); while(d < b){ d.setDate(d.getDate()+1); if(d.getDay()!==0 && d.getDay()!==6) n++; } return n; }
+function behindBy(j){ const t = targetFinish(j); if(!t || isDone(j)) return 0; return today() > t ? workdaysBetween(t, today()) : 0; }
+
+const CFG_KEY = 'rcsBoard.cfg.v1';
+function loadCfg(){ try{ return JSON.parse(localStorage.getItem(CFG_KEY)) || {}; }catch(e){ return {}; } }
+function saveCfg(){ try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch(e){} }
+let cfg = loadCfg();
+const apiUrl = () => API_URL || cfg.apiUrl || '';
+const isDemo = () => !apiUrl();
+
+const S = { user:null, jobs:[], filter:'active', open:{}, loading:false, busy:false };
+const $ = s => document.querySelector(s);
+const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtStamp = s => { if(!s) return ''; const d = new Date(s); return isNaN(d) ? s : d.toLocaleString('en-CA',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}); };
+const isAdmin = () => S.user && S.user.role==='admin';
+const canTick = () => S.user && (S.user.role==='admin' || S.user.role==='lead');
+
+function toast(msg, err){
+  const t = document.createElement('div'); t.className = 'toast'+(err?' err':''); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), err?4000:2000);
+}
+
+/* ---------- API ---------- */
+async function call(action, payload){
+  payload = payload || {};
+  if(isDemo()) return demoCall(action, payload);
+  const res = await fetch(apiUrl(), { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(Object.assign({action, name:cfg.name, pin:cfg.pin}, payload)) });
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error || 'Request failed');
+  return j;
+}
+async function loadAll(silent){
+  if(S.loading) return; S.loading = true;
+  try{ const r = await call('load'); S.user = r.user; S.jobs = r.data.jobs; render(); }
+  catch(e){
+    if(/pin|user/i.test(e.message)){ cfg.pin=''; saveCfg(); S.user=null; renderLogin(e.message); }
+    else if(!silent) toast(e.message, true);
+  }finally{ S.loading = false; }
+}
+
+/* ---------- demo ---------- */
+let DEMO = null;
+function demoSeed(){
+  const now = new Date().toISOString();
+  const wd = n => { const d = today(); let k = 0; while(k < Math.abs(n)){ d.setDate(d.getDate()+(n<0?-1:1)); if(d.getDay()!==0 && d.getDay()!==6) k++; } return iso(d); };
+  DEMO = { users:[{name:'Kayle',role:'admin'},{name:'Darren',role:'admin'},{name:'Roman',role:'lead'}], jobs:[
+    {ID:'j1',EstDays:5,Start:wd(-6),Job:'Hendricks Reno',Location:'Kenosee',Scope:'[x] Main bath shower walls\n[x] Shower floor\nGrout + seal shower\nKitchen backsplash (3x12 subway)',Notes:'Client picked charcoal grout.',UpdatedBy:'Roman',UpdatedAt:now},
+    {ID:'j2',EstDays:3,Start:wd(4),Job:'Lakeview Cabin',Location:'Kenosee Lake',Scope:'Parge north + east foundation walls\nParge south + west walls\nTouch-ups at window wells',Notes:'Needs temp above 5°C.',UpdatedBy:'Kayle',UpdatedAt:now},
+    {ID:'j3',EstDays:6,Start:wd(-2),Job:'Mitchell Build',Location:'Carlyle',Scope:'[x] Heated floor mat, ensuite\nEnsuite floor tile\nCurbless shower walls\nShower niche + bench',Notes:'',UpdatedBy:'Roman',UpdatedAt:now},
+    {ID:'j4',EstDays:8,Start:wd(10),Job:'Arcola Clinic',Location:'Arcola',Scope:'Washroom 1 floor\nWashroom 1 wainscot\nWashroom 2 floor\nWashroom 2 wainscot',Notes:'Takeoff needed from drawings.',UpdatedBy:'Kayle',UpdatedAt:now},
+    {ID:'j5',EstDays:3,Start:'',Job:'Stoughton Fireplace',Location:'Stoughton',Scope:'Stone veneer surround\nHearth stone',Notes:'Confirm hearth height with client.',UpdatedBy:'Kayle',UpdatedAt:now},
+    {ID:'j6',EstDays:2,Start:wd(-15),Job:'Fonagy',Location:'Kenosee',Scope:'[x] Entry floor tile\n[x] Foundation parging',Notes:'All done.',UpdatedBy:'Roman',UpdatedAt:now}
+  ]};
+}
+function demoCall(action, p){
+  if(!DEMO) demoSeed();
+  const me = DEMO.users.find(u => u.name===cfg.name);
+  const ok = x => Promise.resolve(Object.assign({ok:true}, x||{}));
+  const fail = m => Promise.reject(new Error(m));
+  if(action==='names') return ok({names:DEMO.users.map(u => u.name)});
+  if(!me) return fail('Unknown user');
+  if(action==='load') return ok({user:me, data:{jobs:JSON.parse(JSON.stringify(DEMO.jobs))}});
+  const stamp = r => Object.assign(r, {UpdatedBy:me.name, UpdatedAt:new Date().toISOString()});
+  if(action==='saveJob'){
+    if(me.role!=='admin') return fail('Only Kayle or Darren can do that.');
+    const r = p.record, ex = DEMO.jobs.find(j => j.ID===r.ID);
+    if(ex) Object.assign(ex, stamp(r)); else DEMO.jobs.push(stamp(Object.assign({}, r, {ID:Math.random().toString(36).slice(2,10)})));
+    return ok();
+  }
+  if(action==='progress'){
+    if(me.role==='viewer') return fail('View-only account.');
+    const ex = DEMO.jobs.find(j => j.ID===p.id); if(!ex) return fail('Job not found.');
+    if('Scope' in p){
+      const a = parseItems(ex.Scope).map(i => i.t).join('\n'), b = parseItems(p.Scope).map(i => i.t).join('\n');
+      if(a!==b && me.role!=='admin') return fail('Only Kayle or Darren can change the scope.');
+      ex.Scope = p.Scope;
+    }
+    if('Notes' in p) ex.Notes = p.Notes;
+    stamp(ex); return ok();
+  }
+  if(action==='deleteJob'){ if(me.role!=='admin') return fail('Only Kayle or Darren can do that.'); DEMO.jobs = DEMO.jobs.filter(j => j.ID!==p.id); return ok(); }
+  return fail('Unknown action');
+}
+
+/* ---------- login ---------- */
+async function renderLogin(msg){
+  $('#who').textContent = '';
+  $('#app').innerHTML = `<div class="login">
+    ${isDemo() ? '<div class="banner">Demo mode: made-up jobs, and nothing is saved.</div>' : ''}
+    <h2>Who's this?</h2><div class="sub">Pick your name${isDemo() ? '' : ' and enter your PIN'}.</div>
+    ${msg ? `<div class="banner" style="margin-top:10px">${esc(msg)}</div>` : ''}
+    <div class="names" id="names"><div class="empty">Loading…</div></div>
+    ${isDemo() ? '' : '<label>PIN</label><input id="pin" type="password" inputmode="numeric" autocomplete="off">'}
+    <div style="margin-top:14px"><button class="btn" id="go">Continue</button></div></div>`;
+  let picked = cfg.name || '';
+  try{
+    const r = await call('names');
+    $('#names').innerHTML = r.names.map(n => `<button data-n="${esc(n)}" class="${n===picked?'on':''}">${esc(n)}</button>`).join('');
+    $('#names').onclick = e => { const b = e.target.closest('button'); if(!b) return; picked = b.dataset.n;
+      [...$('#names').children].forEach(x => x.classList.toggle('on', x===b)); };
+  }catch(e){ $('#names').innerHTML = `<div class="empty">Couldn't reach the sheet: ${esc(e.message)}</div>`; }
+  $('#go').onclick = async () => {
+    if(!picked) return toast('Pick your name', true);
+    cfg.name = picked; cfg.pin = isDemo() ? '' : ($('#pin').value || '').trim(); saveCfg();
+    await loadAll();
+  };
+}
+
+/* ---------- job list ---------- */
+function render(){
+  if(!S.user) return renderLogin();
+  $('#who').innerHTML = `${esc(S.user.name)}<br>${esc(S.user.role)}${isDemo()?' · demo':''}`;
+  const active = S.jobs.filter(j => !isDone(j)), done = S.jobs.filter(isDone);
+  const list = (S.filter==='active' ? active : done).slice().sort((a,b) => behindBy(b)-behindBy(a) || String(a.Start||'9999').localeCompare(String(b.Start||'9999')) || String(a.Job).localeCompare(String(b.Job)));
+  $('#app').innerHTML = `${isDemo()?'<div class="banner">Demo mode: made-up jobs, and changes reset on reload.</div>':''}
+    <div class="seg"><button data-f="active" class="${S.filter==='active'?'on':''}">Active (${active.length})</button>
+      <button data-f="done" class="${S.filter==='done'?'on':''}">Done (${done.length})</button></div>
+    ${isAdmin()?'<div style="margin-bottom:12px"><button class="btn" id="newJob">+ Add job</button></div>':''}
+    ${list.map(card).join('') || `<div class="empty">${S.filter==='active'?'No active jobs.':'Nothing finished yet.'}</div>`}`;
+}
+function card(j){
+  const it = parseItems(j.Scope), p = progress(j), pct = p.total ? Math.round(p.done/p.total*100) : 0;
+  const open = S.open[j.ID] !== undefined ? S.open[j.ID] : !isDone(j);
+  return `<div class="card ${isDone(j)?'done':''}">
+    <div class="row between" data-toggle="${esc(j.ID)}" style="cursor:pointer">
+      <div><div class="title">${esc(j.Job)}</div><div class="sub">📍 ${esc(j.Location||'—')}</div></div>
+      <span class="chip ${isDone(j)?'g':p.done?'b':''}">${p.done}/${p.total} done</span></div>
+    ${timeline(j)}
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    ${open ? `<div class="items">${it.map((i,k) => `<div class="check ${i.d?'on':''} ${canTick()?'':'ro'}" data-tick="${esc(j.ID)}" data-k="${k}">
+        <div class="box">${i.d?'✓':''}</div><div class="txt">${esc(i.t)}</div></div>`).join('') || '<div class="empty">No scope listed yet.</div>'}</div>
+      ${j.Notes?`<div class="sub" style="margin-top:8px">📝 ${esc(j.Notes)}</div>`:''}
+      <div class="row between" style="margin-top:8px">
+        <span class="small">${j.UpdatedBy?`Updated by ${esc(j.UpdatedBy)} · ${esc(fmtStamp(j.UpdatedAt))}`:''}</span>
+        ${canTick()?`<button class="btn sm sec" data-edit="${esc(j.ID)}">${isAdmin()?'Edit':'Add note'}</button>`:''}
+      </div>` : ''}
+  </div>`;
+}
+function timeline(j){
+  const n = Number(j.EstDays), t = targetFinish(j), st = parseD(j.Start), late = behindBy(j);
+  if(!n && !st) return '';
+  const parts = [];
+  if(n) parts.push(`⏱ ${n} day${n===1?'':'s'}`);
+  if(st && t) parts.push(`${fmtD(st)} → ${fmtD(t)}`); else if(st) parts.push(`Starts ${fmtD(st)}`);
+  return `<div class="row between" style="margin-top:6px"><span class="sub">${esc(parts.join(' · '))}</span>
+    ${late?`<span class="pill red">${late} day${late===1?'':'s'} behind</span>`:''}</div>`;
+}
+async function tick(id, k){
+  if(!canTick() || S.busy) return;
+  const j = S.jobs.find(x => x.ID===id); if(!j) return;
+  const it = parseItems(j.Scope); it[k].d = !it[k].d;
+  const prev = j.Scope; j.Scope = joinItems(it); render();   // instant feedback
+  S.busy = true;
+  try{ await call('progress', {id, Scope:j.Scope}); if(isDone(j)) toast(`${j.Job}: all done 🎉`); await loadAll(true); }
+  catch(e){ j.Scope = prev; render(); toast(e.message, true); }
+  finally{ S.busy = false; }
+}
+function openEdit(id){
+  const j = S.jobs.find(x => x.ID===id) || {ID:'',Job:'',Location:'',Scope:'',Notes:''};
+  const A = isAdmin();
+  $('#modal').innerHTML = `<div class="sheet-bg"><form class="sheet" id="jobForm">
+    <h2>${j.ID?esc(j.Job):'New job'}</h2>
+    ${A?`<label>Job name</label><input name="Job" value="${esc(j.Job)}" required>
+    <label>Location</label><input name="Location" value="${esc(j.Location)}">
+    <div class="grid2"><div><label>Estimated days</label><input type="number" min="1" step="0.5" inputmode="decimal" name="EstDays" value="${esc(j.EstDays)}" placeholder="e.g. 4"></div>
+      <div><label>Start date (optional)</label><input type="date" name="Start" value="${esc(String(j.Start||'').slice(0,10))}"></div></div>
+    <label>Scope of work (one item per line)</label>
+    <textarea name="Scope" style="min-height:140px" placeholder="Shower walls&#10;Shower floor&#10;Backsplash">${esc(parseItems(j.Scope).map(i => i.t).join('\n'))}</textarea>
+    <div class="small">Ticks stay on items whose wording you don't change.</div>`:''}
+    <label>Notes</label><textarea name="Notes" placeholder="Anything Kayle should know">${esc(j.Notes)}</textarea>
+    <div class="btns"><button class="btn" type="submit">Save</button><button class="btn sec" type="button" data-close>Close</button></div>
+    ${A && j.ID?'<div class="btns"><button class="btn danger" type="button" id="delJob">Delete job</button></div>':''}
+  </form></div>`;
+  const bg = $('#modal .sheet-bg');
+  bg.onclick = e => { if(e.target===bg || e.target.closest('[data-close]')) closeModal(); };
+  $('#jobForm').onsubmit = async e => {
+    e.preventDefault(); const fd = new FormData(e.target);
+    try{
+      if(A){
+        const was = {}; parseItems(j.Scope).forEach(i => { if(i.d) was[i.t] = true; });
+        const items = String(fd.get('Scope')||'').split('\n').map(l => l.trim()).filter(Boolean).map(t => ({t, d:!!was[t]}));
+        await call('saveJob', {record:{ID:j.ID, Job:fd.get('Job'), Location:fd.get('Location'), EstDays:fd.get('EstDays'), Start:fd.get('Start'), Scope:joinItems(items), Notes:fd.get('Notes')}});
+      } else await call('progress', {id:j.ID, Notes:fd.get('Notes')});
+      closeModal(); toast('Saved'); await loadAll();
+    }catch(err){ toast(err.message, true); }
+  };
+  if($('#delJob')) $('#delJob').onclick = async e => {
+    const b = e.target; if(!b.dataset.armed){ b.dataset.armed='1'; b.textContent='Tap again to delete'; return; }
+    try{ await call('deleteJob', {id:j.ID}); closeModal(); toast('Deleted'); await loadAll(); }catch(err){ toast(err.message, true); }
+  };
+}
+function closeModal(){ $('#modal').innerHTML = ''; }
+
+function openSettings(){
+  $('#modal').innerHTML = `<div class="sheet-bg"><div class="sheet">
+    <h2>Settings</h2><div class="small">${S.user?`Signed in as ${esc(S.user.name)} (${esc(S.user.role)})`:'Not signed in'}</div>
+    ${API_URL?'':`<label>Google Sheet connection (Apps Script web app URL)</label>
+      <input id="apiIn" value="${esc(cfg.apiUrl||'')}" placeholder="https://script.google.com/macros/s/…/exec">
+      <div class="btns"><button class="btn" id="saveApi">Save connection</button></div>`}
+    <div class="btns"><button class="btn sec" id="logout">Switch user</button><button class="btn sec" data-close>Close</button></div>
+    <div class="small" style="margin-top:14px">On iPhone: Share → Add to Home Screen to install it like an app.</div></div></div>`;
+  const bg = $('#modal .sheet-bg');
+  bg.onclick = e => { if(e.target===bg || e.target.closest('[data-close]')) closeModal(); };
+  if($('#saveApi')) $('#saveApi').onclick = () => { cfg.apiUrl = $('#apiIn').value.trim(); cfg.pin=''; saveCfg(); S.user=null; DEMO=null; closeModal(); renderLogin(); };
+  $('#logout').onclick = () => { cfg.pin=''; saveCfg(); S.user=null; closeModal(); renderLogin(); };
+}
+
+/* ---------- boot ---------- */
+$('#app').onclick = e => {
+  const t = e.target;
+  const f = t.closest('[data-f]'); if(f){ S.filter = f.dataset.f; return render(); }
+  if(t.closest('#newJob')) return openEdit(null);
+  const ed = t.closest('[data-edit]'); if(ed) return openEdit(ed.dataset.edit);
+  const tk = t.closest('[data-tick]'); if(tk) return tick(tk.dataset.tick, Number(tk.dataset.k));
+  const tg = t.closest('[data-toggle]'); if(tg){ const id = tg.dataset.toggle, j = S.jobs.find(x => x.ID===id);
+    S.open[id] = !(S.open[id] !== undefined ? S.open[id] : !isDone(j)); return render(); }
+};
+$('#refreshBtn').onclick = () => S.user ? loadAll().then(() => toast('Up to date')) : renderLogin();
+$('#menuBtn').onclick = openSettings;
+const idle = () => !document.hidden && S.user && !$('#modal').innerHTML && !S.busy;
+document.addEventListener('visibilitychange', () => { if(idle()) loadAll(true); });
+setInterval(() => { if(idle()) loadAll(true); }, 60000);
+if(cfg.name && (isDemo() || cfg.pin)) loadAll(); else renderLogin();
+if('serviceWorker' in navigator && location.protocol==='https:' && !/claude/.test(location.hostname)){
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
