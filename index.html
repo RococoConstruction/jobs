@@ -88,6 +88,8 @@ textarea{min-height:70px;resize:vertical}
 .check.ro{cursor:default}
 .bar{height:6px;background:#202024;border-radius:6px;overflow:hidden;margin-top:8px}
 .bar i{display:block;height:100%;background:var(--gold)}
+.grp{display:flex;align-items:center;justify-content:space-between;margin:14px 2px 8px}
+.grp .chip{font-size:13px;font-weight:700;padding:4px 12px}
 .items{margin-top:10px;background:#212125;border-radius:10px;padding:2px 12px}
 </style>
 </head>
@@ -114,6 +116,10 @@ const parseItems = scope => String(scope||'').split('\n').map(l => l.trim()).fil
 const joinItems = items => items.map(i => (i.d ? '[x] ' : '') + i.t).join('\n');
 const progress = j => { const it = parseItems(j.Scope); const d = it.filter(i => i.d).length; return {done:d, total:it.length}; };
 const isDone = j => { const p = progress(j); return p.total>0 && p.done===p.total; };
+const PRIORITIES = ['Urgent', "When there's time", 'Waiting', 'Not confirmed'];
+const PRI_CLASS = {'Urgent':'r', "When there's time":'b', 'Waiting':'a', 'Not confirmed':''};
+const priOf = j => PRIORITIES.includes(j.Priority) ? j.Priority : "When there's time";
+const priRank = j => PRIORITIES.indexOf(priOf(j));
 const pad = n => String(n).padStart(2,'0');
 const iso = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const parseD = s => { const p = String(s||'').slice(0,10).split('-').map(Number); return p.length===3 && p[0] ? new Date(p[0],p[1]-1,p[2]) : null; };
@@ -175,12 +181,12 @@ function demoSeed(){
   const now = new Date().toISOString();
   const wd = n => { const d = today(); let k = 0; while(k < Math.abs(n)){ d.setDate(d.getDate()+(n<0?-1:1)); if(d.getDay()!==0 && d.getDay()!==6) k++; } return iso(d); };
   DEMO = { users:[{name:'Kayle',role:'admin'},{name:'Darren',role:'admin'},{name:'Roman',role:'lead'}], jobs:[
-    {ID:'j1',EstDays:5,Start:wd(-6),Job:'Hendricks Reno',Location:'Kenosee',Scope:'[x] Main bath shower walls\n[x] Shower floor\nGrout + seal shower\nKitchen backsplash (3x12 subway)',Notes:'Client picked charcoal grout.',UpdatedBy:'Roman',UpdatedAt:now},
-    {ID:'j2',EstDays:3,Start:wd(4),Job:'Lakeview Cabin',Location:'Kenosee Lake',Scope:'Parge north + east foundation walls\nParge south + west walls\nTouch-ups at window wells',Notes:'Needs temp above 5°C.',UpdatedBy:'Kayle',UpdatedAt:now},
-    {ID:'j3',EstDays:6,Start:wd(-2),Job:'Mitchell Build',Location:'Carlyle',Scope:'[x] Heated floor mat, ensuite\nEnsuite floor tile\nCurbless shower walls\nShower niche + bench',Notes:'',UpdatedBy:'Roman',UpdatedAt:now},
-    {ID:'j4',EstDays:8,Start:wd(10),Job:'Arcola Clinic',Location:'Arcola',Scope:'Washroom 1 floor\nWashroom 1 wainscot\nWashroom 2 floor\nWashroom 2 wainscot',Notes:'Takeoff needed from drawings.',UpdatedBy:'Kayle',UpdatedAt:now},
-    {ID:'j5',EstDays:3,Start:'',Job:'Stoughton Fireplace',Location:'Stoughton',Scope:'Stone veneer surround\nHearth stone',Notes:'Confirm hearth height with client.',UpdatedBy:'Kayle',UpdatedAt:now},
-    {ID:'j6',EstDays:2,Start:wd(-15),Job:'Fonagy',Location:'Kenosee',Scope:'[x] Entry floor tile\n[x] Foundation parging',Notes:'All done.',UpdatedBy:'Roman',UpdatedAt:now}
+    {ID:'j1',Priority:'Urgent',EstDays:5,Start:wd(-6),Job:'Hendricks Reno',Location:'Kenosee',Scope:'[x] Main bath shower walls\n[x] Shower floor\nGrout + seal shower\nKitchen backsplash (3x12 subway)',Notes:'Client picked charcoal grout.',UpdatedBy:'Roman',UpdatedAt:now},
+    {ID:'j2',Priority:"When there's time",EstDays:3,Start:wd(4),Job:'Lakeview Cabin',Location:'Kenosee Lake',Scope:'Parge north + east foundation walls\nParge south + west walls\nTouch-ups at window wells',Notes:'Needs temp above 5°C.',UpdatedBy:'Kayle',UpdatedAt:now},
+    {ID:'j3',Priority:'Urgent',EstDays:6,Start:wd(-2),Job:'Mitchell Build',Location:'Carlyle',Scope:'[x] Heated floor mat, ensuite\nEnsuite floor tile\nCurbless shower walls\nShower niche + bench',Notes:'',UpdatedBy:'Roman',UpdatedAt:now},
+    {ID:'j4',Priority:'Not confirmed',EstDays:8,Start:wd(10),Job:'Arcola Clinic',Location:'Arcola',Scope:'Washroom 1 floor\nWashroom 1 wainscot\nWashroom 2 floor\nWashroom 2 wainscot',Notes:'Takeoff needed from drawings.',UpdatedBy:'Kayle',UpdatedAt:now},
+    {ID:'j5',Priority:'Waiting',EstDays:3,Start:'',Job:'Stoughton Fireplace',Location:'Stoughton',Scope:'Stone veneer surround\nHearth stone',Notes:'Confirm hearth height with client.',UpdatedBy:'Kayle',UpdatedAt:now},
+    {ID:'j6',Priority:"When there's time",EstDays:2,Start:wd(-15),Job:'Fonagy',Location:'Kenosee',Scope:'[x] Entry floor tile\n[x] Foundation parging',Notes:'All done.',UpdatedBy:'Roman',UpdatedAt:now}
   ]};
 }
 function demoCall(action, p){
@@ -242,19 +248,25 @@ function render(){
   if(!S.user) return renderLogin();
   $('#who').innerHTML = `${esc(S.user.name)}<br>${esc(S.user.role)}${isDemo()?' · demo':''}`;
   const active = S.jobs.filter(j => !isDone(j)), done = S.jobs.filter(isDone);
-  const list = (S.filter==='active' ? active : done).slice().sort((a,b) => behindBy(b)-behindBy(a) || String(a.Start||'9999').localeCompare(String(b.Start||'9999')) || String(a.Job).localeCompare(String(b.Job)));
+  const order = (a,b) => priRank(a)-priRank(b) || behindBy(b)-behindBy(a) || String(a.Start||'9999').localeCompare(String(b.Start||'9999')) || String(a.Job).localeCompare(String(b.Job));
+  const list = (S.filter==='active' ? active : done).slice().sort(order);
+  let body = '';
+  if(S.filter==='active'){
+    body = PRIORITIES.map(p => { const g = list.filter(j => priOf(j)===p); if(!g.length) return '';
+      return `<div class="grp"><span class="chip ${PRI_CLASS[p]}">${esc(p)}</span><span class="small">${g.length} job${g.length===1?'':'s'}</span></div>` + g.map(card).join(''); }).join('');
+  } else body = list.map(card).join('');
   $('#app').innerHTML = `${isDemo()?'<div class="banner">Demo mode: made-up jobs, and changes reset on reload.</div>':''}
     <div class="seg"><button data-f="active" class="${S.filter==='active'?'on':''}">Active (${active.length})</button>
       <button data-f="done" class="${S.filter==='done'?'on':''}">Done (${done.length})</button></div>
     ${isAdmin()?'<div style="margin-bottom:12px"><button class="btn" id="newJob">+ Add job</button></div>':''}
-    ${list.map(card).join('') || `<div class="empty">${S.filter==='active'?'No active jobs.':'Nothing finished yet.'}</div>`}`;
+    ${body || `<div class="empty">${S.filter==='active'?'No active jobs.':'Nothing finished yet.'}</div>`}`;
 }
 function card(j){
   const it = parseItems(j.Scope), p = progress(j), pct = p.total ? Math.round(p.done/p.total*100) : 0;
   const open = S.open[j.ID] !== undefined ? S.open[j.ID] : !isDone(j);
   return `<div class="card ${isDone(j)?'done':''}">
     <div class="row between" data-toggle="${esc(j.ID)}" style="cursor:pointer">
-      <div><div class="title">${esc(j.Job)}</div><div class="sub">📍 ${esc(j.Location||'—')}</div></div>
+      <div><div class="title">${esc(j.Job)}</div><div class="sub">📍 ${esc(j.Location||'—')}${isDone(j)?'':` · <span style="color:${priOf(j)==='Urgent'?'#f2a19e':'inherit'}">${esc(priOf(j))}</span>`}</div></div>
       <span class="chip ${isDone(j)?'g':p.done?'b':''}">${p.done}/${p.total} done</span></div>
     ${timeline(j)}
     <div class="bar"><i style="width:${pct}%"></i></div>
@@ -293,6 +305,7 @@ function openEdit(id){
     <h2>${j.ID?esc(j.Job):'New job'}</h2>
     ${A?`<label>Job name</label><input name="Job" value="${esc(j.Job)}" required>
     <label>Location</label><input name="Location" value="${esc(j.Location)}">
+    <label>Priority</label><select name="Priority">${PRIORITIES.map(p => `<option ${p===priOf(j)?'selected':''}>${esc(p)}</option>`).join('')}</select>
     <div class="grid2"><div><label>Estimated days</label><input type="number" min="1" step="0.5" inputmode="decimal" name="EstDays" value="${esc(j.EstDays)}" placeholder="e.g. 4"></div>
       <div><label>Start date (optional)</label><input type="date" name="Start" value="${esc(String(j.Start||'').slice(0,10))}"></div></div>
     <label>Scope of work (one item per line)</label>
@@ -310,7 +323,7 @@ function openEdit(id){
       if(A){
         const was = {}; parseItems(j.Scope).forEach(i => { if(i.d) was[i.t] = true; });
         const items = String(fd.get('Scope')||'').split('\n').map(l => l.trim()).filter(Boolean).map(t => ({t, d:!!was[t]}));
-        await call('saveJob', {record:{ID:j.ID, Job:fd.get('Job'), Location:fd.get('Location'), EstDays:fd.get('EstDays'), Start:fd.get('Start'), Scope:joinItems(items), Notes:fd.get('Notes')}});
+        await call('saveJob', {record:{ID:j.ID, Job:fd.get('Job'), Location:fd.get('Location'), Priority:fd.get('Priority'), EstDays:fd.get('EstDays'), Start:fd.get('Start'), Scope:joinItems(items), Notes:fd.get('Notes')}});
       } else await call('progress', {id:j.ID, Notes:fd.get('Notes')});
       closeModal(); toast('Saved'); await loadAll();
     }catch(err){ toast(err.message, true); }
